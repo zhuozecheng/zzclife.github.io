@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html><head>
+<title>这就是ansible系列番外篇之一（SSH长连接填坑)</title>
+
+
+
+
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<meta content="telephone=no" name="format-detection">
+<meta name="description" content="本文介绍了ansible实践时遇到的ssh异常问题的排错过程。">
+<meta name="renderer" content="webkit">
+<meta name="theme-color" content="#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+      <script src="/js/toc.js"></script>
+    
+    <link type="text/css" rel="stylesheet" href="/vendor/css/bootstrap.min.css">
+<link rel="stylesheet" href="/scss/journal.min.0f46f98b723f2aad4b02d9370bb6aa7848b5c2b2a5579642014082283683d2d8.css" integrity="sha256-D0b5i3I/Kq1LAtk3C7aqeEi1wrKlV5ZCAUCCKDaD0tg=" media="screen">
+
+
+
+<link rel="stylesheet" href="/scss/dark-mode.min.79c34391dbcff20df8b4dac718e2606701efcbfdb9f3b08447ac39ac9dc7b463.css" integrity="sha256-ecNDkdvP8g34tNrHGOJgZwHvy/2587CER6w5rJ3HtGM=" media="screen">
+
+
+<link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Material+Icons">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+    	<div id="app"><div id="sideContainer" class="side-container">
+    
+    <a class="a-block nav-head false" href="http://zzc.life">
+    
+        <div class="nav-title">
+            城之迹
+        </div>
+        
+    </a>
+
+    <div class="nav-link-list">
+        
+        
+    </div>
+
+    
+
+    <div class="nav-footer">
+        
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://risehere.net/">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	2021 城之迹
+	
+
+    </div>
+    
+</div><div id="extraContainer" class="extra-container">
+    
+    
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+</div>
+    
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+        
+        <a type="button" class="pagination-action" id="darkModeToggleButton">
+            <span class="material-icons pagination-action-icon" id="darkModeToggleIcon">
+                dark_mode
+            </span>
+        </a>
+        
+        
+    </div>
+</div>
+<div class="single-column-drawer-container" id="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            
+            
+            
+            
+            <div class="toc">
+
+
+</div>
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div id="drawer-mask" v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav id="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div id="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a id="navTitle" class="navbar-brand" href="http://zzc.life">
+            城之迹
+        </a>
+        
+        <button type="button" class="nav-darkmode-toggle" id="darkModeToggleButton2">
+            <i class="material-icons" id="darkModeToggleIcon2">
+                dark_mode
+            </i>
+        </button>
+        
+    </div>
+</nav>
+<div class="single-column-header-container" id="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="http://zzc.life">
+        <div class="single-column-header-title">城之迹</div>
+        
+
+    </a>
+</div>
+
+            <div id="content">
+                <div id="streamContainer" class="stream-container">
+
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                
+            >
+                <div class="post-title">
+                    这就是ansible系列番外篇之一（SSH长连接填坑)
+                    
+                    <div class="post-subtitle">
+                        本文介绍了ansible实践时遇到的ssh异常问题的排错过程。
+                    </div>
+                    
+                    <div class="post-meta">
+                        
+                        <time itemprop="datePublished">
+                            2020-11-16 00:00
+                        </time>
+                        
+
+                        
+                            <i class="material-icons" style="">folder</i>
+                                <a href="/categories/">[技术 ansible]</a>
+                                &nbsp;
+                        
+
+                        
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-body-wrapper">
+                
+                <div class="post-body" v-pre>
+                
+                    <p>​    本来计划着手开始实践ansible操作的， 准备了3台Centos7u5的机器， 系统环境为python 3.7.4， ansible版本为2.10.3,  哪知道出师不利， 配置好了ansible.cfg及inventory后， 执行一下ping就异常了。下面将尽量还原具体填坑的过程。</p>
+<p>先来看一下折腾了几次之后的配置文件，如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmITDAakxYfIngLTCIxn9J8wicBWVZ6rURhEsa7MkV4EBQeDliaFmQyy4g/640?wx_fmt=png" alt="img"></p>
+<p>由于是pip安装的ansible, 缺省不会自动生成ansible.cfg， 就手动创建了。另外， 还创建的主机清单文件，如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmwHrhNibstXBZxkDAoM378uUxVmUJ6p3jyB7AOulz9kUI3fF86r3ehHQ/640?wx_fmt=png" alt="img"></p>
+<p>一开始的时候没有配置ssh连接的具体选项， 使用的是帐户加密码的认证方式，   执行ping命令</p>
+<pre tabindex="0"><code>ansible nginx_cluster -m ping 
+</code></pre><p>时， 出错了， 错误如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmhknQmlZVL828B9WYUzsdyUia77dW0TcvzQF1NEVhfVHBl34ZRoGAtCA/640?wx_fmt=png" alt="img"></p>
+<p>具体的出错信息就是：</p>
+<pre tabindex="0"><code>command-line line 0: Bad yes/no/ask argument.
+</code></pre><p>看到yes/no， 灵机一动， 想起了ssh连接新机器时，也会有一个提示，要输入yes/no的， 大概如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmVicjeTsHjoIwgUIgg4B0M51nlfoGhhLTqZTbsibeqHH19YvpicAObHlLA/640?wx_fmt=png" alt="img"></p>
+<p>于是就顺着如何跳过首次连接时的命令提示的方向去定位和解决问题了， 成功地把自己带到了坑里。</p>
+<p>首先尝试了采用ssh公钥的方式， 相关的配置如下：</p>
+<pre tabindex="0"><code>ssh-keygen  ssh-copy-id -i ~/.ssh/id_rsa.pub &lt;remote-host-name&gt;
+</code></pre><p>然后在shell里面测试了一下，确实可以免钥直接登录成功。一阵开心， 心想这就问题应该O了， 把ansible.cfg及inventory调整了一下， 再次执行ping命令， 发现错误依然存在的。</p>
+<p>然后就去折腾ssh自身的连接配置，包括在ansible.cfg里面指定ssh_conection的相关选项， 最主要的就是首次连接不要检查主机指纹StrictHostKeyChecking设置为no， 再次测试ping命令，发现错误依然存在。</p>
+<p>拿着返回的错误提示， 去google了一下， 没有找到该错误直接关联的有效信息。找到了线索， 加上-vvv， 进行具体的debug。 交互中的重要信息如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmdWrgDu4JNZOI9ug5dv9eDZWFJenY1xrneibuM4EOpog3fEwdbYnKFOA/640?wx_fmt=png" alt="img"></p>
+<pre tabindex="0"><code>&lt;host-name&gt; SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o ConnectTimeout=10 -o ControlPath=/home/xx/.ansible/cp/472fc29db8 &lt;host-name&gt; &#39;/bin/sh -c &#39;&#34;&#39;&#34;&#39;echo ~ &amp;&amp; sleep 0&#39;&#34;&#39;&#34;&#39;&#39;&lt;xx-hostname&gt; (255, b&#39;&#39;, b&#39;command-line line 0: Bad yes/no/ask argument.\r\n&#39;)
+</code></pre><p>可以看到， ssh连接的时候是带了一些选项的：</p>
+<pre tabindex="0"><code>ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
+</code></pre><p>于是在shell里面单独加上这些选项执行ssh时， 果然复现了同样的错误。</p>
+<p>接下来就是逐个选项测试， 看一下哪些选项影响到了。最后试下来发现是ControlMaster及ControlPersist选项， 查了一下资料， 这个选项是提供了SSH长链接的功能， 该功能可以在断开终端连接时实现类似TCP长连接那样在一段时间内保持会话，下次连接的时候可以复用，从而达到节省时间的效果。</p>
+<p>至此，问题总算有些眉目了。但是为什么ControlMaster等选项不生效呢？又继续挖下去中，发现是openssh版本的原因， ControlPersist选项（估计包括ControlMaster auto）都是在openssh 5.6之后才有的。而当前机器ssh使用的openssh版本为：</p>
+<pre tabindex="0"><code>(base) bash-4.1$ ssh -VOpenSSH_3.9p1, OpenSSL 1.0.0-fips 29 Mar 2010
+</code></pre><p>所以自然就出现了上面的问题。</p>
+<p>总结一下，发现openssh不同版本的差异还是蛮大的， 包括ControlMaster的取值等等， 下次遇到一定要非常留意。 问题定位到了，下一步就是升级openssh版本了， 这里暂时不再详述了。</p>
+
+                    
+                    <HR width="100%" id="EOF">
+		    <p style="color:#777;">Last modified on 2020-11-16</p>
+                    
+                </div>
+            </div>
+            
+            
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts" href="/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/">
+			Next<br>离线环境下为CentOS 8 编译安装网卡驱动
+                </a>
+                
+                
+                
+                <a class="older-posts" href="/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/">
+			Previous<br>这就是ansible系列之二（基础知识)
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+                    </div>
+            </div><div id="single-column-footer">
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://risehere.net/">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	2021 城之迹
+	
+</div>
+            </div>
+    
+    <script src="/js/journal.js"></script></body>
+</html>

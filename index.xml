@@ -1,86 +1,264 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml-stylesheet href="/rss.xsl" type="text/xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>城之迹</title>
     <link>http://zzc.life/</link>
     <description>Recent content on 城之迹</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sun, 12 Dec 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://zzc.life/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>离线环境下为CentOS 8 编译安装网卡驱动</title>
-      <link>http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</link>
-      <pubDate>Sun, 12 Dec 2021 00:00:00 +0000</pubDate>
-      
-      <guid>http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</guid>
-      <description>背景 最近， 自己组装了台主机， 默认的操作系统是windows 10， 自己烧了个CentOS 8， 安装了双系统 （中间遇到了不少问题， 有时间再写一篇笔记）。 系统安装完成后， 发现无法联网， 通过 ifconfig/ ip addr 等命令查看， 发现系统并没有检测到网卡， 只有 lo 和virbr0 两块虚拟卡。
-原因定位 一开始以为是自己从阿里镜像上下载的CentOS 8镜像不完整导致的， 考虑是否换成CentOS 7再来安装一次，但在网上搜索了一下， 发现也有人遇到过类似的问题， 在安装CentOS 7/8的情况下都出现了网卡识别不了的情况， 也就是说， 即使再安装成CentOS 7可能也会遇到同样的问题， 排除了发行版本的因素。
-在一篇文章https://www.cnblogs.com/braveym/p/9091025.html中， 看到一名运维工程师提及在运维一批机器时， 因为是组装机， 所以费了不少功夫， 跟自己的情况挺类似的。
-通过lspci的命令(lspci | grep -i ethernet )， 查到自己的网卡型号：r8125 (Ethernet controller: Realtek Semiconductor Co., Ltd. Device 8125 (rev 01)), 这卡网卡相对来说比较新， Linux自带的通用网卡驱动不适用， 需要自行安装驱动。
-安装过程 下载驱动安装 从官网https://www.realtek.com/en/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software 下载 驱动， 考虑到CentOS 8自带的内核版本过于4.18， 下载了 r8125-9.007.01.tar.bz2， 复制到U盘上。
-因为机器是离线的， 没有办法通过网络复制进去或者在主机上直接下载， 复制到U盘后。 通过命令mount /dev/sdb4 /mnt/udisk 挂载到机器上， 具体U盘对应的盘符可以通过fdisk -l 查看， 挂载路径提前创建好。</description>
-    </item>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 12 Dec 2021 00:00:00 +0000</lastBuildDate>
     
-    <item>
-      <title>这就是ansible系列番外篇之一（SSH长连接填坑)</title>
-      <link>http://zzc.life/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/</link>
-      <pubDate>Mon, 16 Nov 2020 00:00:00 +0000</pubDate>
-      
-      <guid>http://zzc.life/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/</guid>
-      <description>​ 本来计划着手开始实践ansible操作的， 准备了3台Centos7u5的机器， 系统环境为python 3.7.4， ansible版本为2.10.3, 哪知道出师不利， 配置好了ansible.cfg及inventory后， 执行一下ping就异常了。下面将尽量还原具体填坑的过程。
-先来看一下折腾了几次之后的配置文件，如下：
-由于是pip安装的ansible, 缺省不会自动生成ansible.cfg， 就手动创建了。另外， 还创建的主机清单文件，如下：
-一开始的时候没有配置ssh连接的具体选项， 使用的是帐户加密码的认证方式， 执行ping命令
-ansible nginx_cluster -m ping 时， 出错了， 错误如下：
-具体的出错信息就是：
-command-line line 0: Bad yes/no/ask argument. 看到yes/no， 灵机一动， 想起了ssh连接新机器时，也会有一个提示，要输入yes/no的， 大概如下：
-于是就顺着如何跳过首次连接时的命令提示的方向去定位和解决问题了， 成功地把自己带到了坑里。
-首先尝试了采用ssh公钥的方式， 相关的配置如下：
-ssh-keygen ssh-copy-id -i ~/.ssh/id_rsa.pub &amp;lt;remote-host-name&amp;gt; 然后在shell里面测试了一下，确实可以免钥直接登录成功。一阵开心， 心想这就问题应该O了， 把ansible.cfg及inventory调整了一下， 再次执行ping命令， 发现错误依然存在的。
-然后就去折腾ssh自身的连接配置，包括在ansible.cfg里面指定ssh_conection的相关选项， 最主要的就是首次连接不要检查主机指纹StrictHostKeyChecking设置为no， 再次测试ping命令，发现错误依然存在。
-拿着返回的错误提示， 去google了一下， 没有找到该错误直接关联的有效信息。找到了线索， 加上-vvv， 进行具体的debug。 交互中的重要信息如下：
-&amp;lt;host-name&amp;gt; SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o ConnectTimeout=10 -o ControlPath=/home/xx/.</description>
-    </item>
+        <atom:link href="http://zzc.life/index.xml" rel="self" type="application/rss+xml" />
     
-    <item>
-      <title>这就是ansible系列之二（基础知识)</title>
-      <link>http://zzc.life/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/</link>
-      <pubDate>Sun, 15 Nov 2020 00:00:00 +0000</pubDate>
-      
-      <guid>http://zzc.life/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/</guid>
-      <description>从ansible系列之一的文章中， 我们知道ansible主要是实现了批量系统配置、 批量程序部署、 批量运行命令功能。 很多情况下， ansible一个命令， 就可以完成一系列的操作， 真正做到了高效、自动化。那么， ansible是如何做到这些的呢？
-首先让我们认识一下ansible的软件架构。
-相关的模块的功能介绍如下：
-模块名 功能 备注 HostInventory 主机清单 Playbooks 配置文件， 包含多个任务， 可自动化执行 CoreModules 核心模块， 实现整个框架 CustomModules 定制模块 Plugins 补充模块的功能 ConnectionPlugins 连接器，用于连接主机 实际上， ansible自身是个框架， 相关的功能都是通过 CoreModules/CustomModules来实现的，而HostInventory/Playbooks/ConnectionPlugins等是用来描述远程执行的主机信息、连接信息及编排要执行任务的相关组件。 上图还描述了ansible不仅适用于传统的IDC里面的主机/集群，也适用于云计算时候的公有云/私有云的场景。
-那么， 实现了具体功能的CoreModules/CustomModules都有哪些呢？下面列举了一些常用的：
-模块名 功能 示例 备注 command 缺省模块，可以不用-m指定， 执行命令 ansible -a &amp;ldquo;chdir=/tmp ls&amp;rdquo; 在上运程执行跳转到/tmp目录并执行ls命令 不能直接执行管道等特殊命令， 需要通过shell模块 shell 执行shell命令 ansible -m shell -a &amp;ldquo;chdir=/tmp ls |grep a&amp;rdquo; 在上运程执行跳转到/tmp目录并执行ls命令并通过管道过滤出包含a的目录或文件 user 执行用户？ -m user -a &amp;ldquo;name=xx state=xx password=xx&amp;rdquo; cron 定期任务 -m cron -a &amp;ldquo;name=xx minute=xx job=xx&amp;rdquo; job取值要加引号 copy 复制 -m copy -a &amp;ldquo;src= xx dest=xx&amp;rdquo; 可以使用相对路径或者绝对路径 yum 包管理器 -m yum -a &amp;ldquo;name=xx state=xx&amp;rdquo; fetch 从远程主机获取文件到本地 -m fetch -a &amp;ldquo;src=xx dest=xx&amp;rdquo; 参数含义跟copy相反， dest是指本地路径 file 创建或者查询目录或者文件 -m file -a &amp;ldquo;path=xx mode=xx state={directory|link|present|absent} src= &amp;quot; directory会递归创建 ping 网络连通测试 -m ping 不用参数 service 服务操作 -m service -a &amp;ldquo;name=xx state={started|stopped|restarted} enabled=xx&amp;rdquo; 具体的， 可以通过ansible-docl -l命令来查看可用模块的列表， 而模块的功能通用可以这样调用：</description>
-    </item>
     
-    <item>
-      <title>这就是ansible系列之一(竞品)</title>
-      <link>http://zzc.life/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/</link>
-      <pubDate>Sat, 14 Nov 2020 00:00:00 +0000</pubDate>
-      
-      <guid>http://zzc.life/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/</guid>
-      <description>ansible属于自动化配置工具的领域， 已经被Redhat收购(官网https://www.ansible.com/）。
-自动化配置工具解决的是如何将软件服务高效可靠地部署到数量众多的服务器上的问题， 简而言之就是批量部署软件服务。 如果不使用自动配置工具， 很自然地，我们通常会先手动在单机上安装一遍软件， 再写成自动化地脚本， 再一台机器一台机器的初始化环境及安装相关的依赖，再把相关的软件包上传到每台服务器上， 在上面执行前面写好的自动化脚本。 服务器数量在3台以内这个工作量看起来还是可以接受的， 但如果有十几台、甚至几十、上百、上千台就几乎不大可能了。自动化配置工具的出现就是来解决这样的问题。
-当前在自动化配置工具领域业界有几款软件都是比较常用的，如下图所示：
-最近想基于k8s集群搭建大数据实验平台， 规划了5台物理机， 想着使用自动化配置工具来完成批量的软件部署， 所以简单地调研了一下， 最好决定使用ansible。 相关软件选型的考虑请看下文分析。 首先从架构来看， 无client端的会简化一点， 少一些麻烦， 从这个角度上来看， puppet及chef减1分； 从直接的协议来看， ssh协议支持通过密码和密钥认证， 也是非常方便地实现从一台服务器远程操作其它服务器的， 协议上来看都是可以提以接受的； 从实现语言来看， ruby远没有python友好， 这在二次开发相关功能插件时， 会有比较明显的效率上的差异， puppet及chef再减1分。
-那在ansible及saltstack之间如何选择呢？ 看相关的分析数据， saltstack部署效率会更高、机器数量比老版本的ansible也支持得多， 但从github上各自项目的star及贡献者及引用的项目来看， ansible明显是优于saltstack，意味着社区支持ansible会更好，saltstack减1分； 然后在网上也看到有网友吐槽
-saltstack 文档复杂， 概念很多， 细微差别指令多， 酌情再减0.5分（自己还没有深度试用)。 其它的必要的项目的稳定性、可扩展性等， 都是差不多的。
-另外， 本次主要解决的是使用ansible来搭建k8s集群， 发现github上人已经贡献了类似的项目https://github.com/easzlab/kubeasz， 有利于我快速上手解决当前的问题， ansible加1分。
-综合上述， 在自动化配置工具的选型上最终选用了ansible。</description>
-    </item>
     
-    <item>
-      <title>这就是TLS系列之一(简介)</title>
-      <link>http://zzc.life/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/</link>
-      <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
-      
-      <guid>http://zzc.life/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/</guid>
-      <description>TLS， 为Transport Layer Security的缩写， 用于在两个通信应用程序之间提供保密性和数据完整性。 这里面涉及到几点事情， 一是数据的传输格式， 这个是通过 TLS Record记录层来提供的， 另外的是数据传输之前的身份确认， 这个是TLS Handshake层来提供的， 大体的， 传输层通过 X.509协议认证， 利用非对称加密深处来对通信方做身份认证； 然后是数据的传输， 先是通过交换对称密钥作为session key， 再用这个密钥来加密数据， 从而保证 两个 应用通信的保密性和可靠性， 使得通信过程不被攻击者窃听。
-TLS及SSL(安全套接字Secure Sockets Layer)的关系为SSL为TLS的前身， 都是用于保障通信的安全及数据完整性。</description>
-    </item>
+        <item>
+        <title>离线环境下为CentOS 8 编译安装网卡驱动</title>
+        <link>http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</link>
+        <pubDate>Sun, 12 Dec 2021 00:00:00 +0000</pubDate>
+        
+        <guid>http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</guid>
+        <description>城之迹 http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/ -&lt;h1 id=&#34;背景&#34;&gt;背景&lt;/h1&gt;
+&lt;p&gt;最近， 自己组装了台主机， 默认的操作系统是windows 10， 自己烧了个CentOS 8， 安装了双系统 （中间遇到了不少问题， 有时间再写一篇笔记）。 系统安装完成后， 发现无法联网， 通过 ifconfig/ ip addr 等命令查看， 发现系统并没有检测到网卡， 只有 lo 和virbr0 两块虚拟卡。&lt;/p&gt;
+&lt;h1 id=&#34;原因定位&#34;&gt;原因定位&lt;/h1&gt;
+&lt;p&gt;一开始以为是自己从阿里镜像上下载的CentOS 8镜像不完整导致的， 考虑是否换成CentOS 7再来安装一次，但在网上搜索了一下， 发现也有人遇到过类似的问题， 在安装CentOS 7/8的情况下都出现了网卡识别不了的情况， 也就是说， 即使再安装成CentOS 7可能也会遇到同样的问题， 排除了发行版本的因素。&lt;/p&gt;
+&lt;p&gt;在一篇文章&lt;a href=&#34;https://www.cnblogs.com/braveym/p/9091025.html&#34;&gt;https://www.cnblogs.com/braveym/p/9091025.html&lt;/a&gt;中， 看到一名运维工程师提及在运维一批机器时， 因为是组装机， 所以费了不少功夫， 跟自己的情况挺类似的。&lt;/p&gt;
+&lt;p&gt;通过lspci的命令(lspci | grep -i ethernet
+)， 查到自己的网卡型号：r8125 (Ethernet controller: Realtek Semiconductor Co., Ltd. Device 8125 (rev 01)), 这卡网卡相对来说比较新， Linux自带的通用网卡驱动不适用， 需要自行安装驱动。&lt;/p&gt;
+&lt;h1 id=&#34;安装过程&#34;&gt;安装过程&lt;/h1&gt;
+&lt;h2 id=&#34;下载驱动安装&#34;&gt;下载驱动安装&lt;/h2&gt;
+&lt;p&gt;从官网&lt;a href=&#34;https://www.realtek.com/en/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software&#34;&gt;https://www.realtek.com/en/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software&lt;/a&gt;   下载 驱动， 考虑到CentOS 8自带的内核版本过于4.18， 下载了 r8125-9.007.01.tar.bz2， 复制到U盘上。&lt;br&gt;
+因为机器是离线的， 没有办法通过网络复制进去或者在主机上直接下载， 复制到U盘后。 通过命令&lt;code&gt;mount /dev/sdb4 /mnt/udisk&lt;/code&gt; 挂载到机器上， 具体U盘对应的盘符可以通过&lt;code&gt;fdisk -l&lt;/code&gt; 查看， 挂载路径提前创建好。&lt;br&gt;
+挂载后，就可以读取U盘的内容。 U盘用的还是之前记录了CentOS 8 ISO安装镜像的那个。 将网卡驱动复制到本地目录， 解压后， 给安装脚本添加执行权限， 尝试执行安装。&lt;br&gt;
+安装不成功， 提示缺少“libelf-dev, libelf-devel or elfutils-libelf-devel” 等依赖包。 按照网上的建议， 从安装镜像的ISO包里面找到 Package目录， 根据提示一个个进行安装， 用的是x86_64的版本， 如下：
+&lt;img src=&#34;2021-12-12-13-31-54.png&#34; alt=&#34;&#34;&gt;
+最后提示 &lt;code&gt;load module r8125. Completed.&lt;/code&gt; 网卡驱动安装成功了。&lt;/p&gt;
+&lt;h2 id=&#34;配置网卡&#34;&gt;配置网卡&lt;/h2&gt;
+&lt;p&gt;通过ifconfig查看到网卡已经识别出来了， 但还无没有分配IP无法上网。 需要制作一个网卡的配置文件&lt;code&gt;//在 /etc/sysconfg/network-script下面新建文件ifcfg-xxx&lt;/code&gt;。 类似下面： ``&lt;br&gt;
+DEVICE=&amp;ldquo;xxx&amp;rdquo;&lt;br&gt;
+NAME=&amp;ldquo;xxx&amp;rdquo;&lt;br&gt;
+DHCP=none&lt;/p&gt;
+&lt;p&gt;Address=&amp;ldquo;xxx.xxx.xxx.xxx&amp;rdquo;&lt;br&gt;
+Gateway=&amp;ldquo;xxx.xxx.xxx.xxx&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;``&lt;br&gt;
+一开始可以先将DHCP配置为both， 通过ifconfig看到已经获取到IP了， 可以ping通百度了， 说明已经可以上网了， 再重新修改为上面的静态IP。 静态IP可以用于后续的远程连接。
+&lt;img src=&#34;2021-12-12-13-42-12.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+- http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/ - </description>
+        </item>
+    
+    
+    
+        <item>
+        <title>这就是ansible系列番外篇之一（SSH长连接填坑)</title>
+        <link>http://zzc.life/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/</link>
+        <pubDate>Mon, 16 Nov 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://zzc.life/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/</guid>
+        <description>城之迹 http://zzc.life/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/ -&lt;p&gt;​    本来计划着手开始实践ansible操作的， 准备了3台Centos7u5的机器， 系统环境为python 3.7.4， ansible版本为2.10.3,  哪知道出师不利， 配置好了ansible.cfg及inventory后， 执行一下ping就异常了。下面将尽量还原具体填坑的过程。&lt;/p&gt;
+&lt;p&gt;先来看一下折腾了几次之后的配置文件，如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmITDAakxYfIngLTCIxn9J8wicBWVZ6rURhEsa7MkV4EBQeDliaFmQyy4g/640?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;由于是pip安装的ansible, 缺省不会自动生成ansible.cfg， 就手动创建了。另外， 还创建的主机清单文件，如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmwHrhNibstXBZxkDAoM378uUxVmUJ6p3jyB7AOulz9kUI3fF86r3ehHQ/640?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;一开始的时候没有配置ssh连接的具体选项， 使用的是帐户加密码的认证方式，   执行ping命令&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;ansible nginx_cluster -m ping 
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;时， 出错了， 错误如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmhknQmlZVL828B9WYUzsdyUia77dW0TcvzQF1NEVhfVHBl34ZRoGAtCA/640?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;具体的出错信息就是：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;command-line line 0: Bad yes/no/ask argument.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;看到yes/no， 灵机一动， 想起了ssh连接新机器时，也会有一个提示，要输入yes/no的， 大概如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmVicjeTsHjoIwgUIgg4B0M51nlfoGhhLTqZTbsibeqHH19YvpicAObHlLA/640?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;于是就顺着如何跳过首次连接时的命令提示的方向去定位和解决问题了， 成功地把自己带到了坑里。&lt;/p&gt;
+&lt;p&gt;首先尝试了采用ssh公钥的方式， 相关的配置如下：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;ssh-keygen  ssh-copy-id -i ~/.ssh/id_rsa.pub &amp;lt;remote-host-name&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;然后在shell里面测试了一下，确实可以免钥直接登录成功。一阵开心， 心想这就问题应该O了， 把ansible.cfg及inventory调整了一下， 再次执行ping命令， 发现错误依然存在的。&lt;/p&gt;
+&lt;p&gt;然后就去折腾ssh自身的连接配置，包括在ansible.cfg里面指定ssh_conection的相关选项， 最主要的就是首次连接不要检查主机指纹StrictHostKeyChecking设置为no， 再次测试ping命令，发现错误依然存在。&lt;/p&gt;
+&lt;p&gt;拿着返回的错误提示， 去google了一下， 没有找到该错误直接关联的有效信息。找到了线索， 加上-vvv， 进行具体的debug。 交互中的重要信息如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmdWrgDu4JNZOI9ug5dv9eDZWFJenY1xrneibuM4EOpog3fEwdbYnKFOA/640?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;&amp;lt;host-name&amp;gt; SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o ConnectTimeout=10 -o ControlPath=/home/xx/.ansible/cp/472fc29db8 &amp;lt;host-name&amp;gt; &amp;#39;/bin/sh -c &amp;#39;&amp;#34;&amp;#39;&amp;#34;&amp;#39;echo ~ &amp;amp;&amp;amp; sleep 0&amp;#39;&amp;#34;&amp;#39;&amp;#34;&amp;#39;&amp;#39;&amp;lt;xx-hostname&amp;gt; (255, b&amp;#39;&amp;#39;, b&amp;#39;command-line line 0: Bad yes/no/ask argument.\r\n&amp;#39;)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以看到， ssh连接的时候是带了一些选项的：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;于是在shell里面单独加上这些选项执行ssh时， 果然复现了同样的错误。&lt;/p&gt;
+&lt;p&gt;接下来就是逐个选项测试， 看一下哪些选项影响到了。最后试下来发现是ControlMaster及ControlPersist选项， 查了一下资料， 这个选项是提供了SSH长链接的功能， 该功能可以在断开终端连接时实现类似TCP长连接那样在一段时间内保持会话，下次连接的时候可以复用，从而达到节省时间的效果。&lt;/p&gt;
+&lt;p&gt;至此，问题总算有些眉目了。但是为什么ControlMaster等选项不生效呢？又继续挖下去中，发现是openssh版本的原因， ControlPersist选项（估计包括ControlMaster auto）都是在openssh 5.6之后才有的。而当前机器ssh使用的openssh版本为：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;(base) bash-4.1$ ssh -VOpenSSH_3.9p1, OpenSSL 1.0.0-fips 29 Mar 2010
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;所以自然就出现了上面的问题。&lt;/p&gt;
+&lt;p&gt;总结一下，发现openssh不同版本的差异还是蛮大的， 包括ControlMaster的取值等等， 下次遇到一定要非常留意。 问题定位到了，下一步就是升级openssh版本了， 这里暂时不再详述了。&lt;/p&gt;
+- http://zzc.life/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/ - </description>
+        </item>
+    
+    
+    
+        <item>
+        <title>这就是ansible系列之二（基础知识)</title>
+        <link>http://zzc.life/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/</link>
+        <pubDate>Sun, 15 Nov 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://zzc.life/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/</guid>
+        <description>城之迹 http://zzc.life/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/ -&lt;p&gt;从ansible系列之一的文章中， 我们知道ansible主要是实现了批量系统配置、 批量程序部署、 批量运行命令功能。 很多情况下， ansible一个命令， 就可以完成一系列的操作， 真正做到了高效、自动化。那么， ansible是如何做到这些的呢？&lt;/p&gt;
+&lt;p&gt;首先让我们认识一下ansible的软件架构。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8Mmqvib00zpqLhN4gh49NIHJicQubeSCribCq2xS4n90qgdTyjmic1lH0JR7oDIsf25eyb1dyFIcMSjhQ/640?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;相关的模块的功能介绍如下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;模块名&lt;/th&gt;
+&lt;th&gt;功能&lt;/th&gt;
+&lt;th&gt;备注&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;HostInventory&lt;/td&gt;
+&lt;td&gt;主机清单&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Playbooks&lt;/td&gt;
+&lt;td&gt;配置文件， 包含多个任务， 可自动化执行&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;CoreModules&lt;/td&gt;
+&lt;td&gt;核心模块， 实现整个框架&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;CustomModules&lt;/td&gt;
+&lt;td&gt;定制模块&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Plugins&lt;/td&gt;
+&lt;td&gt;补充模块的功能&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ConnectionPlugins&lt;/td&gt;
+&lt;td&gt;连接器，用于连接主机&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;实际上， ansible自身是个框架， 相关的功能都是通过 CoreModules/CustomModules来实现的，而HostInventory/Playbooks/ConnectionPlugins等是用来描述远程执行的主机信息、连接信息及编排要执行任务的相关组件。 上图还描述了ansible不仅适用于传统的IDC里面的主机/集群，也适用于云计算时候的公有云/私有云的场景。&lt;/p&gt;
+&lt;p&gt;那么， 实现了具体功能的CoreModules/CustomModules都有哪些呢？下面列举了一些常用的：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;模块名&lt;/th&gt;
+&lt;th&gt;功能&lt;/th&gt;
+&lt;th&gt;示例&lt;/th&gt;
+&lt;th&gt;备注&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;command&lt;/td&gt;
+&lt;td&gt;缺省模块，可以不用-m指定， 执行命令&lt;/td&gt;
+&lt;td&gt;ansible &lt;!-- raw HTML omitted --&gt; -a &amp;ldquo;chdir=/tmp ls&amp;rdquo; 在&lt;!-- raw HTML omitted --&gt;上运程执行跳转到/tmp目录并执行ls命令&lt;/td&gt;
+&lt;td&gt;不能直接执行管道等特殊命令， 需要通过shell模块&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;shell&lt;/td&gt;
+&lt;td&gt;执行shell命令&lt;/td&gt;
+&lt;td&gt;ansible &lt;!-- raw HTML omitted --&gt; -m shell  -a &amp;ldquo;chdir=/tmp ls |grep a&amp;rdquo; 在&lt;!-- raw HTML omitted --&gt;上运程执行跳转到/tmp目录并执行ls命令并通过管道过滤出包含a的目录或文件&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;user&lt;/td&gt;
+&lt;td&gt;执行用户？&lt;/td&gt;
+&lt;td&gt;-m user -a &amp;ldquo;name=xx state=xx password=xx&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;cron&lt;/td&gt;
+&lt;td&gt;定期任务&lt;/td&gt;
+&lt;td&gt;-m cron -a &amp;ldquo;name=xx minute=xx job=xx&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;job取值要加引号&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;copy&lt;/td&gt;
+&lt;td&gt;复制&lt;/td&gt;
+&lt;td&gt;-m copy -a &amp;ldquo;src= xx dest=xx&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;可以使用相对路径或者绝对路径&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;yum&lt;/td&gt;
+&lt;td&gt;包管理器&lt;/td&gt;
+&lt;td&gt;-m yum -a &amp;ldquo;name=xx state=xx&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;fetch&lt;/td&gt;
+&lt;td&gt;从远程主机获取文件到本地&lt;/td&gt;
+&lt;td&gt;-m fetch -a &amp;ldquo;src=xx dest=xx&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;参数含义跟copy相反， dest是指本地路径&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;file&lt;/td&gt;
+&lt;td&gt;创建或者查询目录或者文件&lt;/td&gt;
+&lt;td&gt;-m file -a &amp;ldquo;path=xx mode=xx state={directory|link|present|absent} src= &amp;quot;&lt;/td&gt;
+&lt;td&gt;directory会递归创建&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ping&lt;/td&gt;
+&lt;td&gt;网络连通测试&lt;/td&gt;
+&lt;td&gt;-m ping&lt;/td&gt;
+&lt;td&gt;不用参数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;service&lt;/td&gt;
+&lt;td&gt;服务操作&lt;/td&gt;
+&lt;td&gt;-m service -a &amp;ldquo;name=xx state={started|stopped|restarted} enabled=xx&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;具体的， 可以通过ansible-docl -l命令来查看可用模块的列表， 而模块的功能通用可以这样调用：&lt;/p&gt;
+&lt;p&gt;ansible &lt;!-- raw HTML omitted --&gt; &lt;!-- raw HTML omitted --&gt;  -m module-name  -a args&lt;/p&gt;
+&lt;p&gt;从整体上来看， ansible执行自动化部署的过程大概包括如下步骤：&lt;/p&gt;
+&lt;p&gt;a. 读取剧本playbook, 获取解析要执行的任务详情&lt;/p&gt;
+&lt;p&gt;b. 通过主机清单HostInventory 获取要执行的主机， 根据具体的任务调用相应的模块来执行任务&lt;/p&gt;
+&lt;p&gt;c. 通过连接器ConnectonPlugins连接对应的主机并推送待远程执行的任务列表&lt;/p&gt;
+&lt;p&gt;d. 远程执行任务中具体包含的命令&lt;/p&gt;
+&lt;p&gt;ansible的基础知识我们就大概介绍这么多， 下一篇将从实践的角度上来认识下ansible。&lt;/p&gt;
+- http://zzc.life/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/ - </description>
+        </item>
+    
+    
+    
+        <item>
+        <title>这就是ansible系列之一(竞品)</title>
+        <link>http://zzc.life/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/</link>
+        <pubDate>Sat, 14 Nov 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://zzc.life/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/</guid>
+        <description>城之迹 http://zzc.life/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/ -&lt;p&gt;ansible属于自动化配置工具的领域， 已经被Redhat收购(官网&lt;a href=&#34;https://www.ansible.com/&#34;&gt;https://www.ansible.com/&lt;/a&gt;）。&lt;/p&gt;
+&lt;p&gt;自动化配置工具解决的是如何将软件服务高效可靠地部署到数量众多的服务器上的问题， 简而言之就是批量部署软件服务。 如果不使用自动配置工具， 很自然地，我们通常会先手动在单机上安装一遍软件， 再写成自动化地脚本， 再一台机器一台机器的初始化环境及安装相关的依赖，再把相关的软件包上传到每台服务器上， 在上面执行前面写好的自动化脚本。 服务器数量在3台以内这个工作量看起来还是可以接受的， 但如果有十几台、甚至几十、上百、上千台就几乎不大可能了。自动化配置工具的出现就是来解决这样的问题。&lt;/p&gt;
+&lt;p&gt;当前在自动化配置工具领域业界有几款软件都是比较常用的，如下图所示：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://mmbiz.qlogo.cn/mmbiz_png/tzwqLkEsh8Phk2bJ84xic1fHYkibGMjZL2nME455dSJ5BZ0nBM5TD9ibVcuujoFnOavtsFJuIAyJ5oDq3nJqM8ZqA/0?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;最近想基于k8s集群搭建大数据实验平台， 规划了5台物理机， 想着使用自动化配置工具来完成批量的软件部署， 所以简单地调研了一下， 最好决定使用ansible。 相关软件选型的考虑请看下文分析。
+&lt;img src=&#34;https://mmbiz.qlogo.cn/mmbiz_png/tzwqLkEsh8Phk2bJ84xic1fHYkibGMjZL2vPIwMdCEhNJ7pWyPNib39dV6obpB77y5D8gNlica1F2Nia1rcne3VJ46Q/0?wx_fmt=png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;首先从架构来看， 无client端的会简化一点， 少一些麻烦， 从这个角度上来看， puppet及chef减1分； 从直接的协议来看， ssh协议支持通过密码和密钥认证， 也是非常方便地实现从一台服务器远程操作其它服务器的， 协议上来看都是可以提以接受的； 从实现语言来看， ruby远没有python友好， 这在二次开发相关功能插件时， 会有比较明显的效率上的差异， puppet及chef再减1分。&lt;/p&gt;
+&lt;p&gt;那在ansible及saltstack之间如何选择呢？ 看相关的分析数据， saltstack部署效率会更高、机器数量比老版本的ansible也支持得多， 但从github上各自项目的star及贡献者及引用的项目来看， ansible明显是优于saltstack，意味着社区支持ansible会更好，saltstack减1分； 然后在网上也看到有网友吐槽&lt;/p&gt;
+&lt;p&gt;saltstack 文档复杂， 概念很多， 细微差别指令多， 酌情再减0.5分（自己还没有深度试用)。 其它的必要的项目的稳定性、可扩展性等， 都是差不多的。&lt;/p&gt;
+&lt;p&gt;另外， 本次主要解决的是使用ansible来搭建k8s集群， 发现github上人已经贡献了类似的项目&lt;a href=&#34;https://github.com/easzlab/kubeasz&#34;&gt;https://github.com/easzlab/kubeasz&lt;/a&gt;， 有利于我快速上手解决当前的问题， ansible加1分。&lt;/p&gt;
+&lt;p&gt;综合上述， 在自动化配置工具的选型上最终选用了ansible。&lt;/p&gt;
+- http://zzc.life/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/ - </description>
+        </item>
+    
+    
+    
+        <item>
+        <title>这就是TLS系列之一(简介)</title>
+        <link>http://zzc.life/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/</link>
+        <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://zzc.life/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/</guid>
+        <description>城之迹 http://zzc.life/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/ -&lt;p&gt;TLS， 为Transport Layer Security的缩写， 用于在两个通信应用程序之间提供保密性和数据完整性。  这里面涉及到几点事情， 一是数据的传输格式， 这个是通过 TLS Record记录层来提供的， 另外的是数据传输之前的身份确认， 这个是TLS Handshake层来提供的， 大体的， 传输层通过 X.509协议认证， 利用非对称加密深处来对通信方做身份认证； 然后是数据的传输， 先是通过交换对称密钥作为session key， 再用这个密钥来加密数据， 从而保证 两个 应用通信的保密性和可靠性， 使得通信过程不被攻击者窃听。&lt;/p&gt;
+&lt;p&gt;TLS及SSL(安全套接字Secure Sockets Layer)的关系为SSL为TLS的前身， 都是用于保障通信的安全及数据完整性。&lt;/p&gt;
+- http://zzc.life/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/ - </description>
+        </item>
+    
     
   </channel>
-</rss>
+</rss> 
