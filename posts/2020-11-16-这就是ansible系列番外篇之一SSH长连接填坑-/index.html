@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>这就是ansible系列之二（基础知识)</title>
+<title>这就是ansible系列番外篇之一（SSH长连接填坑)</title>
 
 
 
@@ -10,7 +10,7 @@
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="本文介绍了ansible是什么以及如何实现批量系统配置、 批量程序部署、批量运行命令功能。">
+<meta name="description" content="本文介绍了ansible实践时遇到的ssh异常问题的排错过程。">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
@@ -93,7 +93,7 @@
             
             
             
-            <a class="a-block nav-link-item active" href="/post">
+            <a class="a-block nav-link-item active" href="/posts">
                 归档
             </a>
             
@@ -184,7 +184,7 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 
                 
-                <a class="a-block drawer-menu-item active" href="/post">
+                <a class="a-block drawer-menu-item active" href="/posts">
                     归档
                 </a>
                 
@@ -275,16 +275,16 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
             >
                 <div class="post-title">
-                    这就是ansible系列之二（基础知识)
+                    这就是ansible系列番外篇之一（SSH长连接填坑)
                     
                     <div class="post-subtitle">
-                        本文介绍了ansible是什么以及如何实现批量系统配置、 批量程序部署、批量运行命令功能。
+                        本文介绍了ansible实践时遇到的ssh异常问题的排错过程。
                     </div>
                     
                     <div class="post-meta">
                         
                         <time itemprop="datePublished">
-                            2020-11-15 00:00
+                            2020-11-16 00:00
                         </time>
                         
 
@@ -304,137 +304,39 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 <div class="post-body" v-pre>
                 
-                    <p>从ansible系列之一的文章中， 我们知道ansible主要是实现了批量系统配置、 批量程序部署、 批量运行命令功能。 很多情况下， ansible一个命令， 就可以完成一系列的操作， 真正做到了高效、自动化。那么， ansible是如何做到这些的呢？</p>
-<p>首先让我们认识一下ansible的软件架构。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8Mmqvib00zpqLhN4gh49NIHJicQubeSCribCq2xS4n90qgdTyjmic1lH0JR7oDIsf25eyb1dyFIcMSjhQ/640?wx_fmt=png" alt="img"></p>
-<p>相关的模块的功能介绍如下：</p>
-<table>
-<thead>
-<tr>
-<th>模块名</th>
-<th>功能</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>HostInventory</td>
-<td>主机清单</td>
-<td></td>
-</tr>
-<tr>
-<td>Playbooks</td>
-<td>配置文件， 包含多个任务， 可自动化执行</td>
-<td></td>
-</tr>
-<tr>
-<td>CoreModules</td>
-<td>核心模块， 实现整个框架</td>
-<td></td>
-</tr>
-<tr>
-<td>CustomModules</td>
-<td>定制模块</td>
-<td></td>
-</tr>
-<tr>
-<td>Plugins</td>
-<td>补充模块的功能</td>
-<td></td>
-</tr>
-<tr>
-<td>ConnectionPlugins</td>
-<td>连接器，用于连接主机</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>实际上， ansible自身是个框架， 相关的功能都是通过 CoreModules/CustomModules来实现的，而HostInventory/Playbooks/ConnectionPlugins等是用来描述远程执行的主机信息、连接信息及编排要执行任务的相关组件。 上图还描述了ansible不仅适用于传统的IDC里面的主机/集群，也适用于云计算时候的公有云/私有云的场景。</p>
-<p>那么， 实现了具体功能的CoreModules/CustomModules都有哪些呢？下面列举了一些常用的：</p>
-<table>
-<thead>
-<tr>
-<th>模块名</th>
-<th>功能</th>
-<th>示例</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>command</td>
-<td>缺省模块，可以不用-m指定， 执行命令</td>
-<td>ansible <!-- raw HTML omitted --> -a &ldquo;chdir=/tmp ls&rdquo; 在<!-- raw HTML omitted -->上运程执行跳转到/tmp目录并执行ls命令</td>
-<td>不能直接执行管道等特殊命令， 需要通过shell模块</td>
-</tr>
-<tr>
-<td>shell</td>
-<td>执行shell命令</td>
-<td>ansible <!-- raw HTML omitted --> -m shell  -a &ldquo;chdir=/tmp ls |grep a&rdquo; 在<!-- raw HTML omitted -->上运程执行跳转到/tmp目录并执行ls命令并通过管道过滤出包含a的目录或文件</td>
-<td></td>
-</tr>
-<tr>
-<td>user</td>
-<td>执行用户？</td>
-<td>-m user -a &ldquo;name=xx state=xx password=xx&rdquo;</td>
-<td></td>
-</tr>
-<tr>
-<td>cron</td>
-<td>定期任务</td>
-<td>-m cron -a &ldquo;name=xx minute=xx job=xx&rdquo;</td>
-<td>job取值要加引号</td>
-</tr>
-<tr>
-<td>copy</td>
-<td>复制</td>
-<td>-m copy -a &ldquo;src= xx dest=xx&rdquo;</td>
-<td>可以使用相对路径或者绝对路径</td>
-</tr>
-<tr>
-<td>yum</td>
-<td>包管理器</td>
-<td>-m yum -a &ldquo;name=xx state=xx&rdquo;</td>
-<td></td>
-</tr>
-<tr>
-<td>fetch</td>
-<td>从远程主机获取文件到本地</td>
-<td>-m fetch -a &ldquo;src=xx dest=xx&rdquo;</td>
-<td>参数含义跟copy相反， dest是指本地路径</td>
-</tr>
-<tr>
-<td>file</td>
-<td>创建或者查询目录或者文件</td>
-<td>-m file -a &ldquo;path=xx mode=xx state={directory|link|present|absent} src= &quot;</td>
-<td>directory会递归创建</td>
-</tr>
-<tr>
-<td>ping</td>
-<td>网络连通测试</td>
-<td>-m ping</td>
-<td>不用参数</td>
-</tr>
-<tr>
-<td>service</td>
-<td>服务操作</td>
-<td>-m service -a &ldquo;name=xx state={started|stopped|restarted} enabled=xx&rdquo;</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>具体的， 可以通过ansible-docl -l命令来查看可用模块的列表， 而模块的功能通用可以这样调用：</p>
-<p>ansible <!-- raw HTML omitted --> <!-- raw HTML omitted -->  -m module-name  -a args</p>
-<p>从整体上来看， ansible执行自动化部署的过程大概包括如下步骤：</p>
-<p>a. 读取剧本playbook, 获取解析要执行的任务详情</p>
-<p>b. 通过主机清单HostInventory 获取要执行的主机， 根据具体的任务调用相应的模块来执行任务</p>
-<p>c. 通过连接器ConnectonPlugins连接对应的主机并推送待远程执行的任务列表</p>
-<p>d. 远程执行任务中具体包含的命令</p>
-<p>ansible的基础知识我们就大概介绍这么多， 下一篇将从实践的角度上来认识下ansible。</p>
+                    <p>​    本来计划着手开始实践ansible操作的， 准备了3台Centos7u5的机器， 系统环境为python 3.7.4， ansible版本为2.10.3,  哪知道出师不利， 配置好了ansible.cfg及inventory后， 执行一下ping就异常了。下面将尽量还原具体填坑的过程。</p>
+<p>先来看一下折腾了几次之后的配置文件，如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmITDAakxYfIngLTCIxn9J8wicBWVZ6rURhEsa7MkV4EBQeDliaFmQyy4g/640?wx_fmt=png" alt="img"></p>
+<p>由于是pip安装的ansible, 缺省不会自动生成ansible.cfg， 就手动创建了。另外， 还创建的主机清单文件，如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmwHrhNibstXBZxkDAoM378uUxVmUJ6p3jyB7AOulz9kUI3fF86r3ehHQ/640?wx_fmt=png" alt="img"></p>
+<p>一开始的时候没有配置ssh连接的具体选项， 使用的是帐户加密码的认证方式，   执行ping命令</p>
+<pre tabindex="0"><code>ansible nginx_cluster -m ping 
+</code></pre><p>时， 出错了， 错误如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmhknQmlZVL828B9WYUzsdyUia77dW0TcvzQF1NEVhfVHBl34ZRoGAtCA/640?wx_fmt=png" alt="img"></p>
+<p>具体的出错信息就是：</p>
+<pre tabindex="0"><code>command-line line 0: Bad yes/no/ask argument.
+</code></pre><p>看到yes/no， 灵机一动， 想起了ssh连接新机器时，也会有一个提示，要输入yes/no的， 大概如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmVicjeTsHjoIwgUIgg4B0M51nlfoGhhLTqZTbsibeqHH19YvpicAObHlLA/640?wx_fmt=png" alt="img"></p>
+<p>于是就顺着如何跳过首次连接时的命令提示的方向去定位和解决问题了， 成功地把自己带到了坑里。</p>
+<p>首先尝试了采用ssh公钥的方式， 相关的配置如下：</p>
+<pre tabindex="0"><code>ssh-keygen  ssh-copy-id -i ~/.ssh/id_rsa.pub &lt;remote-host-name&gt;
+</code></pre><p>然后在shell里面测试了一下，确实可以免钥直接登录成功。一阵开心， 心想这就问题应该O了， 把ansible.cfg及inventory调整了一下， 再次执行ping命令， 发现错误依然存在的。</p>
+<p>然后就去折腾ssh自身的连接配置，包括在ansible.cfg里面指定ssh_conection的相关选项， 最主要的就是首次连接不要检查主机指纹StrictHostKeyChecking设置为no， 再次测试ping命令，发现错误依然存在。</p>
+<p>拿着返回的错误提示， 去google了一下， 没有找到该错误直接关联的有效信息。找到了线索， 加上-vvv， 进行具体的debug。 交互中的重要信息如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmdWrgDu4JNZOI9ug5dv9eDZWFJenY1xrneibuM4EOpog3fEwdbYnKFOA/640?wx_fmt=png" alt="img"></p>
+<pre tabindex="0"><code>&lt;host-name&gt; SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o ConnectTimeout=10 -o ControlPath=/home/xx/.ansible/cp/472fc29db8 &lt;host-name&gt; &#39;/bin/sh -c &#39;&#34;&#39;&#34;&#39;echo ~ &amp;&amp; sleep 0&#39;&#34;&#39;&#34;&#39;&#39;&lt;xx-hostname&gt; (255, b&#39;&#39;, b&#39;command-line line 0: Bad yes/no/ask argument.\r\n&#39;)
+</code></pre><p>可以看到， ssh连接的时候是带了一些选项的：</p>
+<pre tabindex="0"><code>ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
+</code></pre><p>于是在shell里面单独加上这些选项执行ssh时， 果然复现了同样的错误。</p>
+<p>接下来就是逐个选项测试， 看一下哪些选项影响到了。最后试下来发现是ControlMaster及ControlPersist选项， 查了一下资料， 这个选项是提供了SSH长链接的功能， 该功能可以在断开终端连接时实现类似TCP长连接那样在一段时间内保持会话，下次连接的时候可以复用，从而达到节省时间的效果。</p>
+<p>至此，问题总算有些眉目了。但是为什么ControlMaster等选项不生效呢？又继续挖下去中，发现是openssh版本的原因， ControlPersist选项（估计包括ControlMaster auto）都是在openssh 5.6之后才有的。而当前机器ssh使用的openssh版本为：</p>
+<pre tabindex="0"><code>(base) bash-4.1$ ssh -VOpenSSH_3.9p1, OpenSSL 1.0.0-fips 29 Mar 2010
+</code></pre><p>所以自然就出现了上面的问题。</p>
+<p>总结一下，发现openssh不同版本的差异还是蛮大的， 包括ControlMaster的取值等等， 下次遇到一定要非常留意。 问题定位到了，下一步就是升级openssh版本了， 这里暂时不再详述了。</p>
 
                     
                     <HR width="100%" id="EOF">
-		    <p style="color:#777;">最后修改于 2020-11-15</p>
+		    <p style="color:#777;">最后修改于 2020-11-16</p>
                     
                 </div>
             </div>
@@ -443,14 +345,14 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
             <nav class="post-pagination">
 
                 
-                <a class="newer-posts" href="/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/">
-			下回<br>这就是ansible系列番外篇之一（SSH长连接填坑)
+                <a class="newer-posts" href="/posts/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/">
+			下回<br>离线环境下为CentOS 8 编译安装网卡驱动
                 </a>
                 
                 
                 
-                <a class="older-posts" href="/post/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/">
-			上回<br>这就是ansible系列之一(竞品)
+                <a class="older-posts" href="/posts/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/">
+			上回<br>这就是ansible系列之二（基础知识)
                 </a>
                 
             </nav>

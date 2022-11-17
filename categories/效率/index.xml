@@ -9,10 +9,10 @@
     <lastBuildDate>Sun, 12 Dec 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://zzc.life/categories/%E6%95%88%E7%8E%87/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>离线环境下为CentOS 8 编译安装网卡驱动</title>
-      <link>http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</link>
+      <link>http://zzc.life/posts/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</link>
       <pubDate>Sun, 12 Dec 2021 00:00:00 +0000</pubDate>
       
-      <guid>http://zzc.life/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</guid>
+      <guid>http://zzc.life/posts/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/</guid>
       <description>背景 最近， 自己组装了台主机， 默认的操作系统是windows 10， 自己烧了个CentOS 8， 安装了双系统 （中间遇到了不少问题， 有时间再写一篇笔记）。 系统安装完成后， 发现无法联网， 通过 ifconfig/ ip addr 等命令查看， 发现系统并没有检测到网卡， 只有 lo 和virbr0 两块虚拟卡。
 原因定位 一开始以为是自己从阿里镜像上下载的CentOS 8镜像不完整导致的， 考虑是否换成CentOS 7再来安装一次，但在网上搜索了一下， 发现也有人遇到过类似的问题， 在安装CentOS 7/8的情况下都出现了网卡识别不了的情况， 也就是说， 即使再安装成CentOS 7可能也会遇到同样的问题， 排除了发行版本的因素。
 在一篇文章https://www.cnblogs.com/braveym/p/9091025.html中， 看到一名运维工程师提及在运维一批机器时， 因为是组装机， 所以费了不少功夫， 跟自己的情况挺类似的。

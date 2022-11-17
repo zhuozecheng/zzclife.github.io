@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>离线环境下为CentOS 8 编译安装网卡驱动</title>
+<title>这就是TLS系列之一(简介)</title>
 
 
 
@@ -10,7 +10,7 @@
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="离线环境下CentOS8网卡驱动编译安装">
+<meta name="description" content="TLS定义">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
@@ -93,7 +93,7 @@
             
             
             
-            <a class="a-block nav-link-item active" href="/post">
+            <a class="a-block nav-link-item active" href="/posts">
                 归档
             </a>
             
@@ -152,115 +152,6 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
     <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
 
 
-	<div class="toc-content">
-	
-		
-		
-		
-		<center>- 目录 -</center>
-		
-		
-		<ul>
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e8%83%8c%e6%99%af" onclick="onNavClick(`#背景-nav`)" id="背景-nav">
-									背景
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e5%8e%9f%e5%9b%a0%e5%ae%9a%e4%bd%8d" onclick="onNavClick(`#原因定位-nav`)" id="原因定位-nav">
-									原因定位
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e5%ae%89%e8%a3%85%e8%bf%87%e7%a8%8b" onclick="onNavClick(`#安装过程-nav`)" id="安装过程-nav">
-									安装过程
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-							
-								
-									<ul>
-								
-							
-						
-						
-							<li>
-								<a href="#%e4%b8%8b%e8%bd%bd%e9%a9%b1%e5%8a%a8%e5%ae%89%e8%a3%85" onclick="onNavClick(`#下载驱动安装-nav`)" id="下载驱动安装-nav">
-									下载驱动安装
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e9%85%8d%e7%bd%ae%e7%bd%91%e5%8d%a1" onclick="onNavClick(`#配置网卡-nav`)" id="配置网卡-nav">
-									配置网卡
-								</a>
-							</li>
-						
-						
-					
-				
-			
-		</ul>
-	</div>
-
 </div>
     
     <div class="pagination">
@@ -293,7 +184,7 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 
                 
-                <a class="a-block drawer-menu-item active" href="/post">
+                <a class="a-block drawer-menu-item active" href="/posts">
                     归档
                 </a>
                 
@@ -331,115 +222,6 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
             
             <div class="toc">
 
-
-	<div class="toc-content">
-	
-		
-		
-		
-		<center>- 目录 -</center>
-		
-		
-		<ul>
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e8%83%8c%e6%99%af" onclick="onNavClick(`#背景-nav`)" id="背景-nav">
-									背景
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e5%8e%9f%e5%9b%a0%e5%ae%9a%e4%bd%8d" onclick="onNavClick(`#原因定位-nav`)" id="原因定位-nav">
-									原因定位
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e5%ae%89%e8%a3%85%e8%bf%87%e7%a8%8b" onclick="onNavClick(`#安装过程-nav`)" id="安装过程-nav">
-									安装过程
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-							
-								
-									<ul>
-								
-							
-						
-						
-							<li>
-								<a href="#%e4%b8%8b%e8%bd%bd%e9%a9%b1%e5%8a%a8%e5%ae%89%e8%a3%85" onclick="onNavClick(`#下载驱动安装-nav`)" id="下载驱动安装-nav">
-									下载驱动安装
-								</a>
-							</li>
-						
-						
-					
-				
-			
-				
-				
-					
-						
-						
-						
-						
-						
-							<li>
-								<a href="#%e9%85%8d%e7%bd%ae%e7%bd%91%e5%8d%a1" onclick="onNavClick(`#配置网卡-nav`)" id="配置网卡-nav">
-									配置网卡
-								</a>
-							</li>
-						
-						
-					
-				
-			
-		</ul>
-	</div>
 
 </div>
             
@@ -493,22 +275,22 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
             >
                 <div class="post-title">
-                    离线环境下为CentOS 8 编译安装网卡驱动
+                    这就是TLS系列之一(简介)
                     
                     <div class="post-subtitle">
-                        离线环境下CentOS8网卡驱动编译安装
+                        TLS定义
                     </div>
                     
                     <div class="post-meta">
                         
                         <time itemprop="datePublished">
-                            2021-12-12 00:00
+                            2020-11-13 00:00
                         </time>
                         
 
                         
                             <i class="material-icons" style="">folder</i>
-                                <a href="/categories/">[技术 效率]</a>
+                                <a href="/categories/">[技术]</a>
                                 &nbsp;
                         
 
@@ -522,35 +304,12 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 <div class="post-body" v-pre>
                 
-                    <h1 id="背景">背景</h1>
-<p>最近， 自己组装了台主机， 默认的操作系统是windows 10， 自己烧了个CentOS 8， 安装了双系统 （中间遇到了不少问题， 有时间再写一篇笔记）。 系统安装完成后， 发现无法联网， 通过 ifconfig/ ip addr 等命令查看， 发现系统并没有检测到网卡， 只有 lo 和virbr0 两块虚拟卡。</p>
-<h1 id="原因定位">原因定位</h1>
-<p>一开始以为是自己从阿里镜像上下载的CentOS 8镜像不完整导致的， 考虑是否换成CentOS 7再来安装一次，但在网上搜索了一下， 发现也有人遇到过类似的问题， 在安装CentOS 7/8的情况下都出现了网卡识别不了的情况， 也就是说， 即使再安装成CentOS 7可能也会遇到同样的问题， 排除了发行版本的因素。</p>
-<p>在一篇文章<a href="https://www.cnblogs.com/braveym/p/9091025.html">https://www.cnblogs.com/braveym/p/9091025.html</a>中， 看到一名运维工程师提及在运维一批机器时， 因为是组装机， 所以费了不少功夫， 跟自己的情况挺类似的。</p>
-<p>通过lspci的命令(lspci | grep -i ethernet
-)， 查到自己的网卡型号：r8125 (Ethernet controller: Realtek Semiconductor Co., Ltd. Device 8125 (rev 01)), 这卡网卡相对来说比较新， Linux自带的通用网卡驱动不适用， 需要自行安装驱动。</p>
-<h1 id="安装过程">安装过程</h1>
-<h2 id="下载驱动安装">下载驱动安装</h2>
-<p>从官网<a href="https://www.realtek.com/en/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software">https://www.realtek.com/en/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software</a>   下载 驱动， 考虑到CentOS 8自带的内核版本过于4.18， 下载了 r8125-9.007.01.tar.bz2， 复制到U盘上。<br>
-因为机器是离线的， 没有办法通过网络复制进去或者在主机上直接下载， 复制到U盘后。 通过命令<code>mount /dev/sdb4 /mnt/udisk</code> 挂载到机器上， 具体U盘对应的盘符可以通过<code>fdisk -l</code> 查看， 挂载路径提前创建好。<br>
-挂载后，就可以读取U盘的内容。 U盘用的还是之前记录了CentOS 8 ISO安装镜像的那个。 将网卡驱动复制到本地目录， 解压后， 给安装脚本添加执行权限， 尝试执行安装。<br>
-安装不成功， 提示缺少“libelf-dev, libelf-devel or elfutils-libelf-devel” 等依赖包。 按照网上的建议， 从安装镜像的ISO包里面找到 Package目录， 根据提示一个个进行安装， 用的是x86_64的版本， 如下：
-<img src="2021-12-12-13-31-54.png" alt="">
-最后提示 <code>load module r8125. Completed.</code> 网卡驱动安装成功了。</p>
-<h2 id="配置网卡">配置网卡</h2>
-<p>通过ifconfig查看到网卡已经识别出来了， 但还无没有分配IP无法上网。 需要制作一个网卡的配置文件<code>//在 /etc/sysconfg/network-script下面新建文件ifcfg-xxx</code>。 类似下面： ``<br>
-DEVICE=&ldquo;xxx&rdquo;<br>
-NAME=&ldquo;xxx&rdquo;<br>
-DHCP=none</p>
-<p>Address=&ldquo;xxx.xxx.xxx.xxx&rdquo;<br>
-Gateway=&ldquo;xxx.xxx.xxx.xxx&rdquo;</p>
-<p>``<br>
-一开始可以先将DHCP配置为both， 通过ifconfig看到已经获取到IP了， 可以ping通百度了， 说明已经可以上网了， 再重新修改为上面的静态IP。 静态IP可以用于后续的远程连接。
-<img src="2021-12-12-13-42-12.png" alt=""></p>
+                    <p>TLS， 为Transport Layer Security的缩写， 用于在两个通信应用程序之间提供保密性和数据完整性。  这里面涉及到几点事情， 一是数据的传输格式， 这个是通过 TLS Record记录层来提供的， 另外的是数据传输之前的身份确认， 这个是TLS Handshake层来提供的， 大体的， 传输层通过 X.509协议认证， 利用非对称加密深处来对通信方做身份认证； 然后是数据的传输， 先是通过交换对称密钥作为session key， 再用这个密钥来加密数据， 从而保证 两个 应用通信的保密性和可靠性， 使得通信过程不被攻击者窃听。</p>
+<p>TLS及SSL(安全套接字Secure Sockets Layer)的关系为SSL为TLS的前身， 都是用于保障通信的安全及数据完整性。</p>
 
                     
                     <HR width="100%" id="EOF">
-		    <p style="color:#777;">最后修改于 2021-12-12</p>
+		    <p style="color:#777;">最后修改于 2020-11-13</p>
                     
                 </div>
             </div>
@@ -559,14 +318,14 @@ Gateway=&ldquo;xxx.xxx.xxx.xxx&rdquo;</p>
             <nav class="post-pagination">
 
                 
-                <a class="newer-posts">
-			下回<br>已经到头啦。
+                <a class="newer-posts" href="/posts/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/">
+			下回<br>这就是ansible系列之一(竞品)
                 </a>
                 
                 
                 
-                <a class="older-posts" href="/post/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/">
-			上回<br>这就是ansible系列番外篇之一（SSH长连接填坑)
+                <a class="older-posts">
+			上回<br>这是最旧的文章了。
                 </a>
                 
             </nav>

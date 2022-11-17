@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>这就是ansible系列之一(竞品)</title>
+<title>这就是ansible系列之二（基础知识)</title>
 
 
 
@@ -10,7 +10,7 @@
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="some word here">
+<meta name="description" content="本文介绍了ansible是什么以及如何实现批量系统配置、 批量程序部署、批量运行命令功能。">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
@@ -93,7 +93,7 @@
             
             
             
-            <a class="a-block nav-link-item active" href="/post">
+            <a class="a-block nav-link-item active" href="/posts">
                 归档
             </a>
             
@@ -184,7 +184,7 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 
                 
-                <a class="a-block drawer-menu-item active" href="/post">
+                <a class="a-block drawer-menu-item active" href="/posts">
                     归档
                 </a>
                 
@@ -275,16 +275,16 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
             >
                 <div class="post-title">
-                    这就是ansible系列之一(竞品)
+                    这就是ansible系列之二（基础知识)
                     
                     <div class="post-subtitle">
-                        some word here
+                        本文介绍了ansible是什么以及如何实现批量系统配置、 批量程序部署、批量运行命令功能。
                     </div>
                     
                     <div class="post-meta">
                         
                         <time itemprop="datePublished">
-                            2020-11-14 00:00
+                            2020-11-15 00:00
                         </time>
                         
 
@@ -304,21 +304,137 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 <div class="post-body" v-pre>
                 
-                    <p>ansible属于自动化配置工具的领域， 已经被Redhat收购(官网<a href="https://www.ansible.com/">https://www.ansible.com/</a>）。</p>
-<p>自动化配置工具解决的是如何将软件服务高效可靠地部署到数量众多的服务器上的问题， 简而言之就是批量部署软件服务。 如果不使用自动配置工具， 很自然地，我们通常会先手动在单机上安装一遍软件， 再写成自动化地脚本， 再一台机器一台机器的初始化环境及安装相关的依赖，再把相关的软件包上传到每台服务器上， 在上面执行前面写好的自动化脚本。 服务器数量在3台以内这个工作量看起来还是可以接受的， 但如果有十几台、甚至几十、上百、上千台就几乎不大可能了。自动化配置工具的出现就是来解决这样的问题。</p>
-<p>当前在自动化配置工具领域业界有几款软件都是比较常用的，如下图所示：</p>
-<p><img src="https://mmbiz.qlogo.cn/mmbiz_png/tzwqLkEsh8Phk2bJ84xic1fHYkibGMjZL2nME455dSJ5BZ0nBM5TD9ibVcuujoFnOavtsFJuIAyJ5oDq3nJqM8ZqA/0?wx_fmt=png" alt="img"></p>
-<p>最近想基于k8s集群搭建大数据实验平台， 规划了5台物理机， 想着使用自动化配置工具来完成批量的软件部署， 所以简单地调研了一下， 最好决定使用ansible。 相关软件选型的考虑请看下文分析。
-<img src="https://mmbiz.qlogo.cn/mmbiz_png/tzwqLkEsh8Phk2bJ84xic1fHYkibGMjZL2vPIwMdCEhNJ7pWyPNib39dV6obpB77y5D8gNlica1F2Nia1rcne3VJ46Q/0?wx_fmt=png" alt="img"></p>
-<p>首先从架构来看， 无client端的会简化一点， 少一些麻烦， 从这个角度上来看， puppet及chef减1分； 从直接的协议来看， ssh协议支持通过密码和密钥认证， 也是非常方便地实现从一台服务器远程操作其它服务器的， 协议上来看都是可以提以接受的； 从实现语言来看， ruby远没有python友好， 这在二次开发相关功能插件时， 会有比较明显的效率上的差异， puppet及chef再减1分。</p>
-<p>那在ansible及saltstack之间如何选择呢？ 看相关的分析数据， saltstack部署效率会更高、机器数量比老版本的ansible也支持得多， 但从github上各自项目的star及贡献者及引用的项目来看， ansible明显是优于saltstack，意味着社区支持ansible会更好，saltstack减1分； 然后在网上也看到有网友吐槽</p>
-<p>saltstack 文档复杂， 概念很多， 细微差别指令多， 酌情再减0.5分（自己还没有深度试用)。 其它的必要的项目的稳定性、可扩展性等， 都是差不多的。</p>
-<p>另外， 本次主要解决的是使用ansible来搭建k8s集群， 发现github上人已经贡献了类似的项目<a href="https://github.com/easzlab/kubeasz">https://github.com/easzlab/kubeasz</a>， 有利于我快速上手解决当前的问题， ansible加1分。</p>
-<p>综合上述， 在自动化配置工具的选型上最终选用了ansible。</p>
+                    <p>从ansible系列之一的文章中， 我们知道ansible主要是实现了批量系统配置、 批量程序部署、 批量运行命令功能。 很多情况下， ansible一个命令， 就可以完成一系列的操作， 真正做到了高效、自动化。那么， ansible是如何做到这些的呢？</p>
+<p>首先让我们认识一下ansible的软件架构。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8Mmqvib00zpqLhN4gh49NIHJicQubeSCribCq2xS4n90qgdTyjmic1lH0JR7oDIsf25eyb1dyFIcMSjhQ/640?wx_fmt=png" alt="img"></p>
+<p>相关的模块的功能介绍如下：</p>
+<table>
+<thead>
+<tr>
+<th>模块名</th>
+<th>功能</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HostInventory</td>
+<td>主机清单</td>
+<td></td>
+</tr>
+<tr>
+<td>Playbooks</td>
+<td>配置文件， 包含多个任务， 可自动化执行</td>
+<td></td>
+</tr>
+<tr>
+<td>CoreModules</td>
+<td>核心模块， 实现整个框架</td>
+<td></td>
+</tr>
+<tr>
+<td>CustomModules</td>
+<td>定制模块</td>
+<td></td>
+</tr>
+<tr>
+<td>Plugins</td>
+<td>补充模块的功能</td>
+<td></td>
+</tr>
+<tr>
+<td>ConnectionPlugins</td>
+<td>连接器，用于连接主机</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>实际上， ansible自身是个框架， 相关的功能都是通过 CoreModules/CustomModules来实现的，而HostInventory/Playbooks/ConnectionPlugins等是用来描述远程执行的主机信息、连接信息及编排要执行任务的相关组件。 上图还描述了ansible不仅适用于传统的IDC里面的主机/集群，也适用于云计算时候的公有云/私有云的场景。</p>
+<p>那么， 实现了具体功能的CoreModules/CustomModules都有哪些呢？下面列举了一些常用的：</p>
+<table>
+<thead>
+<tr>
+<th>模块名</th>
+<th>功能</th>
+<th>示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>command</td>
+<td>缺省模块，可以不用-m指定， 执行命令</td>
+<td>ansible <!-- raw HTML omitted --> -a &ldquo;chdir=/tmp ls&rdquo; 在<!-- raw HTML omitted -->上运程执行跳转到/tmp目录并执行ls命令</td>
+<td>不能直接执行管道等特殊命令， 需要通过shell模块</td>
+</tr>
+<tr>
+<td>shell</td>
+<td>执行shell命令</td>
+<td>ansible <!-- raw HTML omitted --> -m shell  -a &ldquo;chdir=/tmp ls |grep a&rdquo; 在<!-- raw HTML omitted -->上运程执行跳转到/tmp目录并执行ls命令并通过管道过滤出包含a的目录或文件</td>
+<td></td>
+</tr>
+<tr>
+<td>user</td>
+<td>执行用户？</td>
+<td>-m user -a &ldquo;name=xx state=xx password=xx&rdquo;</td>
+<td></td>
+</tr>
+<tr>
+<td>cron</td>
+<td>定期任务</td>
+<td>-m cron -a &ldquo;name=xx minute=xx job=xx&rdquo;</td>
+<td>job取值要加引号</td>
+</tr>
+<tr>
+<td>copy</td>
+<td>复制</td>
+<td>-m copy -a &ldquo;src= xx dest=xx&rdquo;</td>
+<td>可以使用相对路径或者绝对路径</td>
+</tr>
+<tr>
+<td>yum</td>
+<td>包管理器</td>
+<td>-m yum -a &ldquo;name=xx state=xx&rdquo;</td>
+<td></td>
+</tr>
+<tr>
+<td>fetch</td>
+<td>从远程主机获取文件到本地</td>
+<td>-m fetch -a &ldquo;src=xx dest=xx&rdquo;</td>
+<td>参数含义跟copy相反， dest是指本地路径</td>
+</tr>
+<tr>
+<td>file</td>
+<td>创建或者查询目录或者文件</td>
+<td>-m file -a &ldquo;path=xx mode=xx state={directory|link|present|absent} src= &quot;</td>
+<td>directory会递归创建</td>
+</tr>
+<tr>
+<td>ping</td>
+<td>网络连通测试</td>
+<td>-m ping</td>
+<td>不用参数</td>
+</tr>
+<tr>
+<td>service</td>
+<td>服务操作</td>
+<td>-m service -a &ldquo;name=xx state={started|stopped|restarted} enabled=xx&rdquo;</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>具体的， 可以通过ansible-docl -l命令来查看可用模块的列表， 而模块的功能通用可以这样调用：</p>
+<p>ansible <!-- raw HTML omitted --> <!-- raw HTML omitted -->  -m module-name  -a args</p>
+<p>从整体上来看， ansible执行自动化部署的过程大概包括如下步骤：</p>
+<p>a. 读取剧本playbook, 获取解析要执行的任务详情</p>
+<p>b. 通过主机清单HostInventory 获取要执行的主机， 根据具体的任务调用相应的模块来执行任务</p>
+<p>c. 通过连接器ConnectonPlugins连接对应的主机并推送待远程执行的任务列表</p>
+<p>d. 远程执行任务中具体包含的命令</p>
+<p>ansible的基础知识我们就大概介绍这么多， 下一篇将从实践的角度上来认识下ansible。</p>
 
                     
                     <HR width="100%" id="EOF">
-		    <p style="color:#777;">最后修改于 2020-11-14</p>
+		    <p style="color:#777;">最后修改于 2020-11-15</p>
                     
                 </div>
             </div>
@@ -327,14 +443,14 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
             <nav class="post-pagination">
 
                 
-                <a class="newer-posts" href="/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/">
-			下回<br>这就是ansible系列之二（基础知识)
+                <a class="newer-posts" href="/posts/2020-11-16-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E7%95%AA%E5%A4%96%E7%AF%87%E4%B9%8B%E4%B8%80SSH%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%A1%AB%E5%9D%91-/">
+			下回<br>这就是ansible系列番外篇之一（SSH长连接填坑)
                 </a>
                 
                 
                 
-                <a class="older-posts" href="/post/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/">
-			上回<br>这就是TLS系列之一(简介)
+                <a class="older-posts" href="/posts/2020-11-14-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AB%9E%E5%93%81/">
+			上回<br>这就是ansible系列之一(竞品)
                 </a>
                 
             </nav>

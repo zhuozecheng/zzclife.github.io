@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>这就是ansible系列番外篇之一（SSH长连接填坑)</title>
+<title>这就是ansible系列之一(竞品)</title>
 
 
 
@@ -10,7 +10,7 @@
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="本文介绍了ansible实践时遇到的ssh异常问题的排错过程。">
+<meta name="description" content="ansible介绍">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
@@ -93,7 +93,7 @@
             
             
             
-            <a class="a-block nav-link-item active" href="/post">
+            <a class="a-block nav-link-item active" href="/posts">
                 归档
             </a>
             
@@ -184,7 +184,7 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 
                 
-                <a class="a-block drawer-menu-item active" href="/post">
+                <a class="a-block drawer-menu-item active" href="/posts">
                     归档
                 </a>
                 
@@ -275,16 +275,16 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
             >
                 <div class="post-title">
-                    这就是ansible系列番外篇之一（SSH长连接填坑)
+                    这就是ansible系列之一(竞品)
                     
                     <div class="post-subtitle">
-                        本文介绍了ansible实践时遇到的ssh异常问题的排错过程。
+                        ansible介绍
                     </div>
                     
                     <div class="post-meta">
                         
                         <time itemprop="datePublished">
-                            2020-11-16 00:00
+                            2020-11-14 00:00
                         </time>
                         
 
@@ -304,39 +304,21 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
                 
                 <div class="post-body" v-pre>
                 
-                    <p>​    本来计划着手开始实践ansible操作的， 准备了3台Centos7u5的机器， 系统环境为python 3.7.4， ansible版本为2.10.3,  哪知道出师不利， 配置好了ansible.cfg及inventory后， 执行一下ping就异常了。下面将尽量还原具体填坑的过程。</p>
-<p>先来看一下折腾了几次之后的配置文件，如下：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmITDAakxYfIngLTCIxn9J8wicBWVZ6rURhEsa7MkV4EBQeDliaFmQyy4g/640?wx_fmt=png" alt="img"></p>
-<p>由于是pip安装的ansible, 缺省不会自动生成ansible.cfg， 就手动创建了。另外， 还创建的主机清单文件，如下：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmwHrhNibstXBZxkDAoM378uUxVmUJ6p3jyB7AOulz9kUI3fF86r3ehHQ/640?wx_fmt=png" alt="img"></p>
-<p>一开始的时候没有配置ssh连接的具体选项， 使用的是帐户加密码的认证方式，   执行ping命令</p>
-<pre tabindex="0"><code>ansible nginx_cluster -m ping 
-</code></pre><p>时， 出错了， 错误如下：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmhknQmlZVL828B9WYUzsdyUia77dW0TcvzQF1NEVhfVHBl34ZRoGAtCA/640?wx_fmt=png" alt="img"></p>
-<p>具体的出错信息就是：</p>
-<pre tabindex="0"><code>command-line line 0: Bad yes/no/ask argument.
-</code></pre><p>看到yes/no， 灵机一动， 想起了ssh连接新机器时，也会有一个提示，要输入yes/no的， 大概如下：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmVicjeTsHjoIwgUIgg4B0M51nlfoGhhLTqZTbsibeqHH19YvpicAObHlLA/640?wx_fmt=png" alt="img"></p>
-<p>于是就顺着如何跳过首次连接时的命令提示的方向去定位和解决问题了， 成功地把自己带到了坑里。</p>
-<p>首先尝试了采用ssh公钥的方式， 相关的配置如下：</p>
-<pre tabindex="0"><code>ssh-keygen  ssh-copy-id -i ~/.ssh/id_rsa.pub &lt;remote-host-name&gt;
-</code></pre><p>然后在shell里面测试了一下，确实可以免钥直接登录成功。一阵开心， 心想这就问题应该O了， 把ansible.cfg及inventory调整了一下， 再次执行ping命令， 发现错误依然存在的。</p>
-<p>然后就去折腾ssh自身的连接配置，包括在ansible.cfg里面指定ssh_conection的相关选项， 最主要的就是首次连接不要检查主机指纹StrictHostKeyChecking设置为no， 再次测试ping命令，发现错误依然存在。</p>
-<p>拿着返回的错误提示， 去google了一下， 没有找到该错误直接关联的有效信息。找到了线索， 加上-vvv， 进行具体的debug。 交互中的重要信息如下：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/tzwqLkEsh8PO1GIE6n4AFPicPBtIYA0cmdWrgDu4JNZOI9ug5dv9eDZWFJenY1xrneibuM4EOpog3fEwdbYnKFOA/640?wx_fmt=png" alt="img"></p>
-<pre tabindex="0"><code>&lt;host-name&gt; SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o ConnectTimeout=10 -o ControlPath=/home/xx/.ansible/cp/472fc29db8 &lt;host-name&gt; &#39;/bin/sh -c &#39;&#34;&#39;&#34;&#39;echo ~ &amp;&amp; sleep 0&#39;&#34;&#39;&#34;&#39;&#39;&lt;xx-hostname&gt; (255, b&#39;&#39;, b&#39;command-line line 0: Bad yes/no/ask argument.\r\n&#39;)
-</code></pre><p>可以看到， ssh连接的时候是带了一些选项的：</p>
-<pre tabindex="0"><code>ssh -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no
-</code></pre><p>于是在shell里面单独加上这些选项执行ssh时， 果然复现了同样的错误。</p>
-<p>接下来就是逐个选项测试， 看一下哪些选项影响到了。最后试下来发现是ControlMaster及ControlPersist选项， 查了一下资料， 这个选项是提供了SSH长链接的功能， 该功能可以在断开终端连接时实现类似TCP长连接那样在一段时间内保持会话，下次连接的时候可以复用，从而达到节省时间的效果。</p>
-<p>至此，问题总算有些眉目了。但是为什么ControlMaster等选项不生效呢？又继续挖下去中，发现是openssh版本的原因， ControlPersist选项（估计包括ControlMaster auto）都是在openssh 5.6之后才有的。而当前机器ssh使用的openssh版本为：</p>
-<pre tabindex="0"><code>(base) bash-4.1$ ssh -VOpenSSH_3.9p1, OpenSSL 1.0.0-fips 29 Mar 2010
-</code></pre><p>所以自然就出现了上面的问题。</p>
-<p>总结一下，发现openssh不同版本的差异还是蛮大的， 包括ControlMaster的取值等等， 下次遇到一定要非常留意。 问题定位到了，下一步就是升级openssh版本了， 这里暂时不再详述了。</p>
+                    <p>ansible属于自动化配置工具的领域， 已经被Redhat收购(官网<a href="https://www.ansible.com/">https://www.ansible.com/</a>）。</p>
+<p>自动化配置工具解决的是如何将软件服务高效可靠地部署到数量众多的服务器上的问题， 简而言之就是批量部署软件服务。 如果不使用自动配置工具， 很自然地，我们通常会先手动在单机上安装一遍软件， 再写成自动化地脚本， 再一台机器一台机器的初始化环境及安装相关的依赖，再把相关的软件包上传到每台服务器上， 在上面执行前面写好的自动化脚本。 服务器数量在3台以内这个工作量看起来还是可以接受的， 但如果有十几台、甚至几十、上百、上千台就几乎不大可能了。自动化配置工具的出现就是来解决这样的问题。</p>
+<p>当前在自动化配置工具领域业界有几款软件都是比较常用的，如下图所示：</p>
+<p><img src="https://mmbiz.qlogo.cn/mmbiz_png/tzwqLkEsh8Phk2bJ84xic1fHYkibGMjZL2nME455dSJ5BZ0nBM5TD9ibVcuujoFnOavtsFJuIAyJ5oDq3nJqM8ZqA/0?wx_fmt=png" alt="img"></p>
+<p>最近想基于k8s集群搭建大数据实验平台， 规划了5台物理机， 想着使用自动化配置工具来完成批量的软件部署， 所以简单地调研了一下， 最好决定使用ansible。 相关软件选型的考虑请看下文分析。
+<img src="https://mmbiz.qlogo.cn/mmbiz_png/tzwqLkEsh8Phk2bJ84xic1fHYkibGMjZL2vPIwMdCEhNJ7pWyPNib39dV6obpB77y5D8gNlica1F2Nia1rcne3VJ46Q/0?wx_fmt=png" alt="img"></p>
+<p>首先从架构来看， 无client端的会简化一点， 少一些麻烦， 从这个角度上来看， puppet及chef减1分； 从直接的协议来看， ssh协议支持通过密码和密钥认证， 也是非常方便地实现从一台服务器远程操作其它服务器的， 协议上来看都是可以提以接受的； 从实现语言来看， ruby远没有python友好， 这在二次开发相关功能插件时， 会有比较明显的效率上的差异， puppet及chef再减1分。</p>
+<p>那在ansible及saltstack之间如何选择呢？ 看相关的分析数据， saltstack部署效率会更高、机器数量比老版本的ansible也支持得多， 但从github上各自项目的star及贡献者及引用的项目来看， ansible明显是优于saltstack，意味着社区支持ansible会更好，saltstack减1分； 然后在网上也看到有网友吐槽</p>
+<p>saltstack 文档复杂， 概念很多， 细微差别指令多， 酌情再减0.5分（自己还没有深度试用)。 其它的必要的项目的稳定性、可扩展性等， 都是差不多的。</p>
+<p>另外， 本次主要解决的是使用ansible来搭建k8s集群， 发现github上人已经贡献了类似的项目<a href="https://github.com/easzlab/kubeasz">https://github.com/easzlab/kubeasz</a>， 有利于我快速上手解决当前的问题， ansible加1分。</p>
+<p>综合上述， 在自动化配置工具的选型上最终选用了ansible。</p>
 
                     
                     <HR width="100%" id="EOF">
-		    <p style="color:#777;">最后修改于 2020-11-16</p>
+		    <p style="color:#777;">最后修改于 2020-11-14</p>
                     
                 </div>
             </div>
@@ -345,14 +327,14 @@ Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> b
             <nav class="post-pagination">
 
                 
-                <a class="newer-posts" href="/post/2021-12-12-%E7%A6%BB%E7%BA%BF%E7%8E%AF%E5%A2%83%E4%B8%8BCentOS%E5%AE%89%E8%A3%85%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8/">
-			下回<br>离线环境下为CentOS 8 编译安装网卡驱动
+                <a class="newer-posts" href="/posts/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/">
+			下回<br>这就是ansible系列之二（基础知识)
                 </a>
                 
                 
                 
-                <a class="older-posts" href="/post/2020-11-15-%E8%BF%99%E5%B0%B1%E6%98%AFansible%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-/">
-			上回<br>这就是ansible系列之二（基础知识)
+                <a class="older-posts" href="/posts/2020-11-13-%E8%BF%99%E5%B0%B1%E6%98%AFTLS%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%E7%AE%80%E4%BB%8B/">
+			上回<br>这就是TLS系列之一(简介)
                 </a>
                 
             </nav>
